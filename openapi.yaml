@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  title: Midterm API
+  version: 1.0.0
+  description: A small Express API that holds an array of tasks that can be added to, deleted from, queried from, or updated.
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: Server is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /tasks:
+    get:
+      summary: List tasks
+      description: Returns the list of tasks
+      responses:
+        "200":
+          description: Task list response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListResponse"
+              example:
+                tasks:
+                  - id: 1
+                    title: Watch week 3 lecture
+                    course: CS553
+                    completed: true
+                  - id: 2
+                    title: Complete lab 4
+                    course: CS553
+                    completed: false
+    post:
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            example:
+              title: Midterm
+              course: CS553
+              completed: false
+      responses:
+        "200":
+          description: Task has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                - id: 3
+                  title: Midterm
+                  course: CS553
+                  completed: false
+        "400":
+          description: Certain data is missing or incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid or missing data
+
+  /tasks/{id}:
+    get:
+      summary: Get task by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The task ID from the URL path.
+          schema:
+            type: integer
+            example: 7
+      responses:
+        "200":
+          description: Single task response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                - id: 1
+                  title: Watch week 2 lecture
+                  course: CS553
+                  completed: true
+        "404":
+          description: The task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+    put:
+      summary: Replace the title, course, and completed status of the task with the provided ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The task ID from the URL path.
+          schema:
+            type: integer
+            example: 7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            example:
+              title: Watch week 1 lecture
+              course: CS553
+              completed: true
+      responses:
+        "200":
+          description: Task has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                - id: 1
+                  title: Watch week 1 lecture
+                  course: CS553
+                  completed: true
+        "400":
+          description: Certain data is missing or incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid or missing data
+        "404":
+          description: The task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+    patch:
+      summary: Replace the title, course, or completed status of the task with the provided ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The task ID from the URL path.
+          schema:
+            type: integer
+            example: 7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            example:
+              name: mechanical keyboard
+              quantity: 12
+      responses:
+        "200":
+          description: Task has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+              example:
+                - id: 1
+                  name: mechanical keyboard
+                  quantity: 12
+        "400":
+          description: Certain data is missing or incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid or missing data
+        "404":
+          description: The task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+    delete:
+      summary: Delete the task with the provided ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The task ID from the URL path.
+          schema:
+            type: integer
+            example: 7
+      responses:
+        "204":
+          description: Task has been deleted.
+        "404":
+          description: The task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Task not found
+
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Watch week 3 lecture
+        course:
+          type: string
+          example: CS553
+        completed:
+          type: boolean
+          example: true
+      required:
+        - id
+        - title
+        - course
+        - completed
+
+    TaskListResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          tasks:
+            $ref: "#/components/schemas/Task"
+      required:
+        - tasks
+
+    TaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Watch week 3 lecture
+        course:
+          type: string
+          example: CS553
+        completed:
+          type: boolean
+          example: false
+      required:
+        - title
+        - course
+        - completed
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Task not found
+      required:
+        - error
