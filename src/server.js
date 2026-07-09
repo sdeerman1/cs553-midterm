@@ -1,12 +1,18 @@
 import express from "express";
 
+import { requestLogger } from "./middleware/requestLogger.js";
+import { validation } from "./middleware/validation.js";
+
 export function createApp() {
   const app = express();
 
   app.use(express.json());
 
-  // Starter data. This data is stored in memory and will reset when the
-  // server restarts.
+  // Application-level middleware.
+  app.use(requestLogger);
+//   app.use(validation);
+
+  // Starter data. This data is stored in memory and will reset when the server restarts.
   let nextId = 2;
   const tasks = [
     { id: 1, title: "Watch Week 3 lecture", course: "CS553", completed: false },
@@ -31,37 +37,58 @@ export function createApp() {
     }
   });
 
-  app.post("/api/tasks", (req, res) => {
-    const taskTitle = req.body.title;
-    const taskCourse = req.body.course;
-    const taskCompleted = Boolean(req.body.completed);
-    if ( (taskTitle.trim().length > 0) && (taskCourse.trim().length > 0 ) && (typeof taskCompleted == "boolean") ) {
-      const newTask = { id: nextId, title: taskTitle, course: taskCourse, completed: taskCompleted };
-      tasks.push(newTask);
-      nextId = nextId + 1;
-      res.status(201).json(newTask);
-    }
-    else {
-      res.status(400).json({ error: "Invalid or missing data." });
-    }
+//   app.post("/api/tasks", validation, (req, res) => {
+//     const taskTitle = req.body.title;
+//     const taskCourse = req.body.course;
+//     const taskCompleted = Boolean(req.body.completed);
+//     if ( (taskTitle.trim().length > 0) && (taskCourse.trim().length > 0 ) && (typeof taskCompleted == "boolean") ) {
+//       const newTask = { id: nextId, title: taskTitle, course: taskCourse, completed: taskCompleted };
+//       tasks.push(newTask);
+//       nextId = nextId + 1;
+//       res.status(201).json(newTask);
+//     }
+//     else {
+//       res.status(400).json({ error: "Invalid or missing data." });
+//     }
+//   });
+
+  app.post("/api/tasks", validation, (req, res) => {
+    const newTask = { id: nextId, title: req.body.title, course: req.body.course, completed: req.body.completed };
+    tasks.push(newTask);
+    nextId = nextId + 1;
+    res.status(201).json(newTask);
   });
 
-  app.put("/api/tasks/:id", (req, res) => {
+//   app.put("/api/tasks/:id", (req, res) => {
+//     const requestedID = Number(req.params.id);
+//     const requestedTask = tasks.find(task => task.id == requestedID);
+//     if (requestedTask) {
+//       const taskTitle = req.body.title;
+//       const taskCourse = req.body.course;
+//       const taskCompleted = Boolean(req.body.completed);
+//       if ( (taskTitle.trim().length > 0) && (taskCourse.trim().length > 0 ) && (typeof taskCompleted == "boolean") ) {
+//         requestedTask.title = taskTitle;
+//         requestedTask.course = taskCourse;
+//         requestedTask.completed = taskCompleted;
+//         res.json(requestedTask);
+//       }
+//       else {
+//         res.status(400).json({ error: "Invalid or missing data." });
+//       }
+//     }
+//     else {
+//       res.status(404).json({ error: "Task not found."})
+//     }
+//   });
+
+  app.put("/api/tasks/:id", validation, (req, res) => {
     const requestedID = Number(req.params.id);
     const requestedTask = tasks.find(task => task.id == requestedID);
     if (requestedTask) {
-      const taskTitle = req.body.title;
-      const taskCourse = req.body.course;
-      const taskCompleted = Boolean(req.body.completed);
-      if ( (taskTitle.trim().length > 0) && (taskCourse.trim().length > 0 ) && (typeof taskCompleted == "boolean") ) {
-        requestedTask.title = taskTitle;
-        requestedTask.course = taskCourse;
-        requestedTask.completed = taskCompleted;
-        res.json(requestedTask);
-      }
-      else {
-        res.status(400).json({ error: "Invalid or missing data." });
-      }
+      requestedTask.title = req.body.title;;
+      requestedTask.course = req.body.course;;
+      requestedTask.completed = req.body.completed;
+      res.json(requestedTask);
     }
     else {
       res.status(404).json({ error: "Task not found."})
@@ -71,7 +98,6 @@ export function createApp() {
   app.patch("/api/tasks/:id", (req, res) => {
     const requestedID = Number(req.params.id);
     const requestedTask = tasks.find(task => task.id == requestedID);
-    // const data = JSON.stringify(req.body);
     if (requestedTask) {
       if ("title" in req.body) {
         const taskTitle = req.body.title;
