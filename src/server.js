@@ -68,23 +68,39 @@ export function createApp() {
     }
   });
 
-  // FIXME: same as put?
   app.patch("/api/tasks/:id", (req, res) => {
     const requestedID = Number(req.params.id);
     const requestedTask = tasks.find(task => task.id == requestedID);
+    // const data = JSON.stringify(req.body);
     if (requestedTask) {
-      const taskTitle = req.body.title;
-      const taskCourse = req.body.course;
-      const taskCompleted = Boolean(req.body.completed);
-      if ( (taskTitle.trim().length > 0) && (taskCourse.trim().length > 0 ) && (typeof taskCompleted == "boolean") ) {
-        requestedTask.title = taskTitle;
-        requestedTask.course = taskCourse;
-        requestedTask.completed = taskCompleted;
-        res.json(requestedTask);
+      if ("title" in req.body) {
+        const taskTitle = req.body.title;
+        if (taskTitle.trim().length > 0) {
+          requestedTask.title = taskTitle;
+        }
+        else {
+          res.status(400).json({ error: "Invalid or missing data." });
+        }
       }
-      else {
-        res.status(400).json({ error: "Invalid or missing data." });
+      if ("course" in req.body) {
+        const taskCourse = req.body.course;
+        if (taskCourse.trim().length > 0 ) {
+          requestedTask.course = taskCourse;
+        }
+        else {
+          res.status(400).json({ error: "Invalid or missing data." });
+        }
       }
+      if ("completed" in req.body) {
+        const taskCompleted = Boolean(req.body.completed);
+        if (typeof taskCompleted == "boolean") {
+          requestedTask.completed = taskCompleted;
+        }
+        else {
+          res.status(400).json({ error: "Invalid or missing data." });
+        }
+      }
+    res.status(200).json(requestedTask);
     }
     else {
       res.status(404).json({ error: "Task not found."})
@@ -115,11 +131,11 @@ export function createApp() {
 
 const isMainModule = process.argv[1] === new URL(import.meta.url).pathname;
 
-if (isMainModule) {
+// if (isMainModule) {
   const PORT = process.env.PORT || 3000;
   const app = createApp();
 
   app.listen(PORT, () => {
-    console.log(`Lab 3 REST API listening on port ${PORT}`);
+    console.log(`Midterm API listening on port ${PORT}`);
   });
-}
+// }

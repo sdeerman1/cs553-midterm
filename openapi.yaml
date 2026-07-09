@@ -168,7 +168,7 @@ paths:
                     type: string
                     example: Task not found
     patch:
-      summary: Replace the title, course, or completed status of the task with the provided ID.
+      summary: Replace the title, course, or completed status of the task with the provided ID. Can also update 2 or all 3 at a time.
       parameters:
         - name: id
           in: path
@@ -185,19 +185,19 @@ paths:
               type: object
               additionalProperties: true
             example:
-              name: mechanical keyboard
-              quantity: 12
+              completed: true
       responses:
         "200":
           description: Task has been successfully updated.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Item"
+                $ref: "#/components/schemas/Task"
               example:
-                - id: 1
-                  name: mechanical keyboard
-                  quantity: 12
+                - id: 7
+                  title: Watch week 1 lecture
+                  course: CS553
+                  completed: true
         "400":
           description: Certain data is missing or incorrect.
           content:
@@ -271,7 +271,7 @@ components:
       properties:
         tasks:
           type: array
-          tasks:
+          items:
             $ref: "#/components/schemas/Task"
       required:
         - tasks

@@ -1,47 +1,43 @@
 const API_BASE_URL = "http://localhost:3000";
 
-const loadButton = document.querySelector("#load-tasks");
-const taskList = document.querySelector("#tasks");
-const form = document.querySelector("#add-task-form");
-const taskTitleInput = document.querySelector("#task-title");
-const taskCourseInput = document.querySelector("#task-course");
-const taskCompletedInput = document.querySelector("#task-completed");
-const statusBox = document.querySelector("#status");
+async function callHealth() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`);
 
-function setStatus(message) {
-  statusBox.textContent = message;
-}
-
-function renderTasks(tasks) {
-  taskList.replaceChildren();
-
-  for (const task of tasks) {
-    const li = document.createElement("li");
-    li.textContent = `${task.id}: ${task.title} (${task.course}) (${task.completed})`;
-    taskList.appendChild(li);
+    if (!response.ok) {
+      throw new Error(`/health failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("/health successful");
+  } catch (error) {
+    console.error(error.message);
   }
 }
 
 async function loadTasks() {
-  setStatus("Loading tasks...");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/tasks`);
+    const response = await fetch(`${API_BASE_URL}/tasks`);
 
     if (!response.ok) {
-      throw new Error(`GET /api/tasks failed with status ${response.status}`);
+      throw new Error(`GET /tasks failed with status ${response.status}`);
     }
 
     const data = await response.json();
-    renderTasks(data.tasks);
-    setStatus("Tasks loaded.");
+    console.log("GET /tasks successful");
+    console.log(data);
   } catch (error) {
-    setStatus(error.message);
+    console.error(error.message);
   }
 }
 
-async function addTask(title, course, completed) {
-  setStatus("Adding task...");
+async function addTask() {
+
+  const input = {
+    "title": "Complete lab 05",
+    "course": "CS553",
+    "completed": false
+  };
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -49,7 +45,7 @@ async function addTask(title, course, completed) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ title, course, completed })
+      body: JSON.stringify(input)
     });
 
     const data = await response.json();
@@ -58,29 +54,80 @@ async function addTask(title, course, completed) {
       throw new Error(data.message ?? `POST /api/tasks failed with status ${response.status}`);
     }
 
-    setStatus(`Added task: ${data.task.title}`);
-    await loadTasks();
+    console.log("POST /api/tasks successful: added task \"" + data.title + "\"");
+
   } catch (error) {
-    setStatus(error.message);
+    console.error(error.message);
   }
 }
 
-loadButton.addEventListener("click", loadTasks);
+async function loadTaskByID(id) {
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`);
 
-  const title = taskTitleInput.value.trim();
-  const course = taskCourseInput.value.trim();
-  const completed = Boolean(taskCompletedInput);
+    if (!response.ok) {
+      throw new Error(`GET /api/tasks/:id failed with status ${response.status}`);
+    }
 
-  if (!title || !course || typeof completed != "boolean") {
-    setStatus("Enter a title, course, and a boolean value.");
-    return;
+    const data = await response.json();
+    console.log("GET /tasks/:id successful");
+  } catch (error) {
+    console.error(error.message);
   }
+}
 
-  taskTitleInput.value = "";
-  taskCourseInput.value = "";
-  taskCompletedInput.value = false;
-  await addTask(title, course, completed);
-});
+async function updateTask(id) {
+
+  const input = {
+    "title": "Complete lab 06",
+    "course": "CS553",
+    "completed": false
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(input)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message ?? `PUT /api/tasks/:id failed with status ${response.status}`);
+    }
+
+    console.log("PUT /api/tasks/:id successful: updated task 2 to : \"" + data.title + "\"");
+
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+async function deleteTask(id) {
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(data.message ?? `DELETE /api/tasks/:id failed with status ${response.status}`);
+    }
+
+    console.log("DELETE /api/tasks/:id successful");
+
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+await callHealth();
+await addTask();
+await loadTasks();
+await loadTaskByID(1);
+await updateTask(2);
+await deleteTask(1);
