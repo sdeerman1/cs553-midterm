@@ -1,6 +1,6 @@
 import express from "express";
 
-import { requestLogger } from "./middleware/requestLogger.js";
+import { requestLogger } from "./middleware/logger.js";
 import { validation } from "./middleware/validation.js";
 
 export function createApp() {
@@ -37,6 +37,7 @@ export function createApp() {
     }
   });
 
+  // OLD CODE BEFORE MIDDLEWARE WAS IMPLEMENTED
 //   app.post("/api/tasks", validation, (req, res) => {
 //     const taskTitle = req.body.title;
 //     const taskCourse = req.body.course;
@@ -59,6 +60,7 @@ export function createApp() {
     res.status(201).json(newTask);
   });
 
+// OLD CODE BEFORE MIDDLEWARE WAS IMPLEMENTED
 //   app.put("/api/tasks/:id", (req, res) => {
 //     const requestedID = Number(req.params.id);
 //     const requestedTask = tasks.find(task => task.id == requestedID);

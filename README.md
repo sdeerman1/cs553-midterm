@@ -73,6 +73,3 @@ curl -X PATCH http://localhost:3000/api/tasks/2 \
 {"id":2,"title":"Midterm","course":"CS453","completed":false}
 
 curl -X DELETE http://localhost:3000/api/tasks/2
-
-
-
