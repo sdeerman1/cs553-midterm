@@ -60,7 +60,7 @@ paths:
               completed: false
       responses:
         "200":
-          description: Task has been successfully updated.
+          description: Task has been successfully created.
           content:
             application/json:
               schema:
