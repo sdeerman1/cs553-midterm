@@ -161,7 +161,7 @@ async function prompt() {
           break;
         case 'update one item':
           const updateId = (Number)(await rl.question('Enter the ID of the task to update: '));
-          const updatedKey = (await rl.question('Which aspect of the task do you want to update? Title, course, or completion status: ')).trim().toLowerCase();
+          const updatedKey = (await rl.question('Which aspect of the task do you want to update? title, course, or completion status: ')).trim().toLowerCase();
           switch (updatedKey) {
             case 'title':
               const updateTitle = (await rl.question('Enter new title of task: ')).trim();
